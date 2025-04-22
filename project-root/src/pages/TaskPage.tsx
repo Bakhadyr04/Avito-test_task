@@ -1,7 +1,7 @@
 // src/pages/TaskPage.tsx
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchTaskById, updateTask } from "../api/issuesApi";
+import { fetchTaskById, updateTask, deleteTask } from "../api/issuesApi";
 import { Issue } from "../types/issue";
 import { useState, useEffect } from "react";
 
@@ -16,6 +16,7 @@ type UpdateTaskPayload = {
 
 const TaskPage = () => {
   const { taskId } = useParams<{ taskId: string }>();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const {
@@ -58,15 +59,34 @@ const TaskPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!task) return;
+    if (!task || !task.assignee) {
+      alert("Задача не имеет назначенного исполнителя");
+      return;
+    }
 
     saveTask({
       title,
       description,
       status,
-      priority: "Medium", // можно расширить в будущем
-      assigneeId: task.assignee.id, // важно! иначе 400 от сервера
+      priority: "Medium", // можно заменить на select при необходимости
+      assigneeId: task.assignee.id,
     });
+  };
+
+  const handleDelete = async () => {
+    if (!taskId) return;
+
+    const confirmed = window.confirm("Вы уверены, что хотите удалить эту задачу?");
+    if (!confirmed) return;
+
+    try {
+      await deleteTask(Number(taskId));
+      alert("Задача успешно удалена.");
+      navigate("/tasks");
+    } catch (error) {
+      alert("Ошибка при удалении задачи");
+      console.error(error);
+    }
   };
 
   const isUpdating = updateStatus === "pending";
@@ -82,7 +102,14 @@ const TaskPage = () => {
       </p>
       <div className="mb-4">
         <p className="text-sm text-muted-foreground">
-          Исполнитель: {task.assignee.fullName} ({task.assignee.email})
+          Исполнитель:{" "}
+          {task.assignee ? (
+            <>
+              {task.assignee.fullName} ({task.assignee.email})
+            </>
+          ) : (
+            <span className="italic text-gray-400">не назначен</span>
+          )}
         </p>
       </div>
 
@@ -118,13 +145,23 @@ const TaskPage = () => {
           </select>
         </div>
 
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          disabled={isUpdating}
-        >
-          {isUpdating ? "Сохраняем..." : "Сохранить"}
-        </button>
+        <div className="flex gap-3">
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            disabled={isUpdating}
+          >
+            {isUpdating ? "Сохраняем..." : "Сохранить"}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Удалить
+          </button>
+        </div>
 
         {isUpdateError && (
           <p className="text-red-600 text-sm">Ошибка при обновлении задачи</p>

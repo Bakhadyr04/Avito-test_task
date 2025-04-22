@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import BoardPage from './pages/BoardPage';
 import IssuesPage from './pages/IssuesPage';
 import TaskPage from './pages/TaskPage';
+import TasksPage from "./pages/TasksPage";
 import CreateTaskPage from "./pages/CreateTaskPage";
 import BoardDetailsPage from "./pages/BoardDetailsPage";
 import UsersPage from './pages/UsersPage';
@@ -39,6 +40,7 @@ function App() {
         <Route path="/board/:boardId" element={<BoardDetailsPage />} />
         <Route path="/issues" element={<IssuesPage />} />
         <Route path="/task/:taskId" element={<TaskPage />} />
+        <Route path="/tasks" element={<TasksPage />} />
         <Route path="/users" element={<UsersPage />} />
         <Route path="/teams" element={<TeamsPage />} />
         <Route path="/team/:teamId" element={<TeamPage />} />

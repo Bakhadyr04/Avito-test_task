@@ -1,18 +1,16 @@
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 
 const Header = () => {
   return (
-    <header className="flex items-center justify-between border-b px-6 py-3 bg-white shadow-sm">
-      <div className="space-x-4">
-        <Link to="/issues" className="text-blue-600 hover:underline">
+    <header className="px-6 py-4 bg-white shadow flex justify-between items-center sticky top-0 z-50">
+      <nav className="space-x-6">
+        <Link to="/tasks" className="text-blue-600 hover:underline">
           Все задачи
         </Link>
         <Link to="/boards" className="text-blue-600 hover:underline">
-          Проекты
+          Все доски
         </Link>
-      </div>
-      <Button variant="default">Создать задачу</Button>
+      </nav>
     </header>
   );
 };

@@ -1,64 +1,37 @@
-// src/pages/TeamPage.tsx
-import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { fetchTeamById } from "../api/teamApi";
-import { TeamResponse } from "../types/team";
+import { fetchTeams } from "../api/teamsApi";
+import { Link } from "react-router-dom";
+import { TeamSummary } from "../types/team";
 
-const TeamPage = () => {
-  const { teamId } = useParams<{ teamId: string }>();
-
-  const {
-    data: team,
-    isLoading,
-    isError,
-  } = useQuery<TeamResponse>({
-    queryKey: ["team", teamId],
-    queryFn: () => fetchTeamById(teamId!),
-    enabled: !!teamId,
+const TeamsPage = () => {
+  const { data: teams, isLoading, isError } = useQuery<TeamSummary[]>({
+    queryKey: ["teams"],
+    queryFn: fetchTeams,
   });
 
-  if (isLoading) return <div className="p-4">Загрузка команды...</div>;
-  if (isError || !team) return <div className="p-4">Ошибка при загрузке команды</div>;
+  if (isLoading) return <div className="p-4">Загрузка команд...</div>;
+  if (isError || !teams) return <div className="p-4">Ошибка при загрузке команд</div>;
 
   return (
     <div className="p-6 space-y-6">
-      <h2 className="text-2xl font-bold mb-4">Команда: {team.name}</h2>
-      <p className="text-muted-foreground">{team.description}</p>
-
-      <div>
-        <h3 className="text-xl font-semibold mt-6 mb-2">Пользователи:</h3>
-        {team.users && team.users.length > 0 ? (
-          <ul className="space-y-2">
-            {team.users.map((user) => (
-              <li key={user.id} className="p-4 border rounded bg-white">
-                <p className="font-semibold">{user.fullName}</p>
-                <p className="text-sm text-muted-foreground">{user.email}</p>
-                <p className="text-sm">{user.description}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-muted-foreground">Нет пользователей в команде</p>
-        )}
-      </div>
-
-      <div>
-        <h3 className="text-xl font-semibold mt-6 mb-2">Доски:</h3>
-        {team.boards && team.boards.length > 0 ? (
-          <ul className="space-y-2">
-            {team.boards.map((board) => (
-              <li key={board.id} className="p-4 border rounded bg-white">
-                <p className="font-semibold">{board.name}</p>
-                <p className="text-sm text-muted-foreground">{board.description}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-muted-foreground">Нет досок</p>
-        )}
+      <h2 className="text-2xl font-bold mb-4">Список команд</h2>
+      <div className="grid grid-cols-2 gap-4">
+        {teams.map((team) => (
+          <Link
+            key={team.id}
+            to={`/team/${team.id}`}
+            className="block p-4 border rounded bg-white hover:bg-muted transition"
+          >
+            <h3 className="text-lg font-semibold">{team.name}</h3>
+            <p className="text-sm text-muted-foreground">{team.description}</p>
+            <p className="text-sm text-muted-foreground">
+              Пользователей: {team.usersCount} | Досок: {team.boardsCount}
+            </p>
+          </Link>
+        ))}
       </div>
     </div>
   );
 };
 
-export default TeamPage;
+export default TeamsPage;

@@ -12,4 +12,5 @@ export interface Issue {
     avatarUrl: string;
   };
   boardName: string;
+  boardId: number;
 }
